@@ -1,9 +1,11 @@
 import SwiftUI
+import ServiceManagement
 
 struct ContentView: View {
     @State private var result = SpeedResult()
     @State private var isTesting = false
     @State private var status = "Click to run a network speed test"
+    @AppStorage("launchAtLogin") private var launchAtLogin = false
     
     let service = SpeedTestService()
 
@@ -28,6 +30,21 @@ struct ContentView: View {
             }
             .disabled(isTesting)
             .buttonStyle(.borderedProminent)
+
+            Divider()
+                .padding(.vertical, 4)
+
+            Toggle("Launch at Login", isOn: $launchAtLogin)
+                .onChange(of: launchAtLogin) { newValue in
+                    do {
+                        if newValue && SMAppService.mainApp.status != .enabled { try SMAppService.mainApp.register() }
+                        else if !newValue && SMAppService.mainApp.status == .enabled { try SMAppService.mainApp.unregister() }
+                    } catch {
+                        print("Launch at login error: \(error)")
+                        launchAtLogin = SMAppService.mainApp.status == .enabled
+                    }
+                }
+            .font(.caption)
             
             Button("Quit") {
                 NSApplication.shared.terminate(nil)
