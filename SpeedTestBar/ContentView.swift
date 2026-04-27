@@ -1,24 +1,87 @@
-//
-//  ContentView.swift
-//  SpeedTestBar
-//
-//  Created by Filip Bogdan on 27/04/2026.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @State private var result = SpeedResult()
+    @State private var isTesting = false
+    @State private var status = "Click to run a network speed test"
+    
+    let service = SpeedTestService()
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        VStack(spacing: 14) {
+            Text("🌐 Speed Test")
+                .font(.headline)
+            
+            HStack(spacing: 20) {
+                StatView(label: "Download", value: result.download, unit: "Mbps", color: .green)
+                StatView(label: "Upload", value: result.upload, unit: "Mbps", color: .blue)
+                StatView(label: "Ping", value: result.latency, unit: "ms", color: .orange)
+            }
+            
+            Text(status)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            Button(action: startTest) {
+                Text(isTesting ? "Testing ..." : "Run speed test")
+                    .frame(maxWidth: .infinity)
+            }
+            .disabled(isTesting)
+            .buttonStyle(.borderedProminent)
+            
+            Button("Quit") {
+                NSApplication.shared.terminate(nil)
+            }
+            .buttonStyle(.plain)
+            .foregroundColor(.secondary)
+            .font(.caption)
         }
         .padding()
+        .frame(width: 260)
+    }
+    
+    func startTest() {
+        isTesting = true
+        status = "Running..."
+        result = SpeedResult()
+        
+        Task {
+            status = "Ping..."
+            let ping = await service.measureLatency()
+            result.latency = ping
+            
+            status = "Download..."
+            let dl = await service.measureDownload()
+            result.download = dl
+            
+            status = "Upload..."
+            let ul = await service.measureUpload()
+            result.upload = ul
+            
+            status = "Finished Test ✓"
+            isTesting = false
+        }
     }
 }
 
-#Preview {
-    ContentView()
+struct StatView: View {
+    let label: String
+    let value: Double
+    let unit: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(label)
+                .font(.caption2)
+                .foregroundColor(.secondary)
+            Text(value > 0 ? String(format: "%.1f", value) : "—")
+                .font(.title3)
+                .bold()
+                .foregroundColor(color)
+            Text(unit)
+                .font(.caption2)
+                .foregroundColor(.secondary)
+        }
+    }
 }

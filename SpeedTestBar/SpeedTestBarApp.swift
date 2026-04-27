@@ -1,17 +1,10 @@
-//
-//  SpeedTestBarApp.swift
-//  SpeedTestBar
-//
-//  Created by Filip Bogdan on 27/04/2026.
-//
-
 import SwiftUI
 
 @main
 struct SpeedTestBarApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    
     var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
+        Settings { EmptyView() }
     }
 }
