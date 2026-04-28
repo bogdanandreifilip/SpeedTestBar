@@ -20,10 +20,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
             button.target = self
         }
+        
+        // Observe changes to refresh the menu bar title
+        NotificationCenter.default.addObserver(self, selector: #selector(refreshTitle), name: NSNotification.Name("UpdateMenuBarTitle"), object: nil)
+
+        // Initial title update
+        updateMenuBarTitle()
 
         let contentView = ContentView()
         popover.contentViewController = NSHostingController(rootView: contentView)
-        popover.contentSize = NSSize(width: 260, height: 200)
+        popover.contentSize = NSSize(width: 260, height: 350)
         popover.behavior = .transient
     }
 
@@ -55,6 +61,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
             popover.contentViewController?.view.window?.makeKey()
+        }
+    }
+
+    @objc func refreshTitle() {
+        updateMenuBarTitle()
+    }
+
+    private func updateMenuBarTitle() {
+        let showDL = UserDefaults.standard.bool(forKey: "showDownloadInMenuBar")
+        let showUL = UserDefaults.standard.bool(forKey: "showUploadInMenuBar")
+        let showPing = UserDefaults.standard.bool(forKey: "showPingInMenuBar")
+
+        let dlValue = UserDefaults.standard.double(forKey: "lastDownload")
+        let ulValue = UserDefaults.standard.double(forKey: "lastUpload")
+        let pingValue = UserDefaults.standard.double(forKey: "lastPing")
+
+        var components: [String] = []
+        if showDL && dlValue > 0 { components.append("↓\(String(format: "%.1f", dlValue))") }
+        if showUL && ulValue > 0 { components.append("↑\(String(format: "%.1f", ulValue))") }
+        if showPing && pingValue > 0 { components.append("\(Int(pingValue))ms") }
+
+        DispatchQueue.main.async {
+            // If components is empty, title becomes "", showing only the icon
+            self.statusItem?.button?.title = components.joined(separator: " ")
         }
     }
 
