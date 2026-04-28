@@ -21,7 +21,9 @@ A lightweight macOS menu bar app that lets you test your internet speed with a s
 
 ## Screenshots
 
-> *(Add your screenshots here)*
+Normal View                |  Detailed View
+:-------------------------:|:-------------------------:
+![](img/normalview.png)    |  ![](img/detailedview.png)
 
 ---
 
