@@ -41,7 +41,7 @@ Normal View                |  Detailed View
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/SpeedTestBar.git
+   git clone https://github.com/bogdanandreifilip/SpeedTestBar.git
    ```
 2. Open `SpeedTestBar.xcodeproj` in Xcode
 3. Select your Team in **Signing & Capabilities**
